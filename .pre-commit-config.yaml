@@ -1,0 +1,44 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.3.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-case-conflict
+    -   id: check-json
+    -   id: check-yaml
+    -   id: check-added-large-files
+    -   id: double-quote-string-fixer
+-   repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.1.9
+    hooks:
+    -   id: forbid-crlf
+    -   id: remove-crlf
+-   repo: https://github.com/codespell-project/codespell
+    rev: v1.17.1
+    hooks:
+    -   id: codespell
+-   repo: https://github.com/saily/pre-commit-yapf-isort
+    rev: 598ff67cc598dddee43bc611d0bf4a07f4b08619
+    hooks:
+    -   id: yapf-isort
+        exclude: __init__.py
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.8.4
+    hooks:
+    -   id: flake8
+        additional_dependencies: [flake8-eradicate, pep8-naming]
+-   repo: https://github.com/pycqa/pydocstyle
+    rev: 5.1.1
+    hooks:
+    -   id: pydocstyle
+        exclude: setup.py
+-   repo: https://github.com/doublify/pre-commit-clang-format
+    rev: 62302476d0da01515660132d76902359bed0f782
+    hooks:
+    -   id: clang-format
+        exclude: js$
+-   repo: https://github.com/doublify/pre-commit-rust
+    rev: master
+    hooks:
+    -   id: fmt
