@@ -93,7 +93,7 @@ impl _ParseDataTypes {
     fn decoded(&self) -> PyResult<Vec<Option<PyObject>>> {
         let mut out = Vec::new();
 
-        for d in &self.decoded.clone().unwrap() {
+        for d in self.decoded.as_ref().unwrap() {
             match d {
                 None => out.push(None),
                 Some(x) => {
