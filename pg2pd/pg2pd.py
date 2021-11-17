@@ -95,7 +95,9 @@ class Pg2Pd():
             'varchar': ['str', 'string', 'text'],
             'integer': ['i32'],
             'smallint': ['i16'],
-            'bigint': ['i64']
+            'bigint': ['i64'],
+            'real': ['f32'],
+            'double': ['f64']
         }
 
     def _parse_pg_binary(self):

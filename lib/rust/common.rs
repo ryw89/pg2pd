@@ -19,6 +19,18 @@ pub fn bytes_to_i64(bytes: &[u8]) -> Result<i64, &'static str> {
     Ok(count)
 }
 
+/// Get an f32, given a length-4 slice of u8's.
+pub fn bytes_to_f32(bytes: &[u8]) -> Result<f32, &'static str> {
+    let count = bytes.clone().read_f32::<BigEndian>().unwrap();
+    Ok(count)
+}
+
+/// Get an f64, given a length-4 slice of u8's.
+pub fn bytes_to_f64(bytes: &[u8]) -> Result<f64, &'static str> {
+    let count = bytes.clone().read_f64::<BigEndian>().unwrap();
+    Ok(count)
+}
+
 /// Simpler wrapper around pyo3's to_object() method.
 pub fn to_pyobject_wrap<T>(x: T) -> PyObject
 where
