@@ -3,7 +3,7 @@ use pyo3::exceptions::*;
 use pyo3::prelude::*;
 use std::str::from_utf8;
 
-use crate::common::{bytes_to_i16, bytes_to_i32, to_pyobject_wrap};
+use crate::common::{bytes_to_i16, bytes_to_i32, bytes_to_i64, to_pyobject_wrap};
 
 #[pyclass]
 pub struct _ParseDataTypes {
@@ -52,7 +52,7 @@ impl _ParseDataTypes {
     #[new]
     pub fn new(raw: Vec<Option<Vec<u8>>>, data_type: String) -> PyResult<Self> {
         // Check for allowed data types
-        let allowed = vec!["varchar", "integer", "smallint"];
+        let allowed = vec!["varchar", "integer", "smallint", "bigint"];
         if !allowed.iter().any(|&i| i == data_type) {
             return Err(PyValueError::new_err(format!(
                 "Invalid data type: {}.",
@@ -84,6 +84,10 @@ impl _ParseDataTypes {
                     } else if &self.data_type == "smallint" {
                         let decoded = bytes_to_i16(e).unwrap();
                         let enummed = PgData::Smallint(decoded);
+                        out.push(Some(enummed));
+                    } else if &self.data_type == "bigint" {
+                        let decoded = bytes_to_i64(e).unwrap();
+                        let enummed = PgData::Bigint(decoded);
                         out.push(Some(enummed));
                     }
                 }
