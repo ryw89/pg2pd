@@ -14,7 +14,7 @@ of Rust.
 
 - [x] text
 - [x] integer
-- [ ] smallint
+- [x] smallint
 - [ ] bigint
 - [ ] boolean
 - [ ] real

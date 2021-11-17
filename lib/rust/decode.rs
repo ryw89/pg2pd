@@ -52,7 +52,7 @@ impl _ParseDataTypes {
     #[new]
     pub fn new(raw: Vec<Option<Vec<u8>>>, data_type: String) -> PyResult<Self> {
         // Check for allowed data types
-        let allowed = vec!["varchar", "integer"];
+        let allowed = vec!["varchar", "integer", "smallint"];
         if !allowed.iter().any(|&i| i == data_type) {
             return Err(PyValueError::new_err(format!(
                 "Invalid data type: {}.",
@@ -80,6 +80,10 @@ impl _ParseDataTypes {
                     } else if &self.data_type == "integer" {
                         let decoded = bytes_to_i32(e).unwrap();
                         let enummed = PgData::Integer(decoded);
+                        out.push(Some(enummed));
+                    } else if &self.data_type == "smallint" {
+                        let decoded = bytes_to_i16(e).unwrap();
+                        let enummed = PgData::Smallint(decoded);
                         out.push(Some(enummed));
                     }
                 }

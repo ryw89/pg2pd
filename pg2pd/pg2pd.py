@@ -91,7 +91,11 @@ class Pg2Pd():
 
     @property
     def _type_aliases(self):
-        return {'varchar': ['str', 'string', 'text'], 'integer': ['i32']}
+        return {
+            'varchar': ['str', 'string', 'text'],
+            'integer': ['i32'],
+            'smallint': ['i16']
+        }
 
     def _parse_pg_binary(self):
         """Main invocation of Postgres binary copy parser."""
