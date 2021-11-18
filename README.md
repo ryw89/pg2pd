@@ -16,6 +16,6 @@ of Rust.
 - [x] integer
 - [x] smallint
 - [x] bigint
-- [ ] boolean
+- [x] boolean
 - [x] real
 - [x] double precision

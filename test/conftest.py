@@ -30,6 +30,10 @@ def postgres_container_creds():
                          sqlalchemy.Column('id', sqlalchemy.Integer),
                          sqlalchemy.Column('text', sqlalchemy.String))
 
+        sqlalchemy.Table('test2', meta,
+                         sqlalchemy.Column('t', sqlalchemy.Boolean),
+                         sqlalchemy.Column('f', sqlalchemy.Boolean))
+
         meta.create_all(engine)
 
         # Insert test data
@@ -37,6 +41,8 @@ def postgres_container_creds():
                           VALUES (42, 'Some cool data')""")
         engine.execute("""INSERT INTO test1(id, text)
                           VALUES (25, 'Even more cool data')""")
+        engine.execute("""INSERT INTO test2(t, f)
+                          VALUES (true, false)""")
 
         # Return Docker container's postgres credentials
         port = postgres.get_exposed_port(5432)

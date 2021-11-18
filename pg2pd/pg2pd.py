@@ -97,7 +97,8 @@ class Pg2Pd():
             'smallint': ['i16'],
             'bigint': ['i64'],
             'real': ['f32'],
-            'double': ['f64']
+            'double': ['f64'],
+            'boolean': ['bool']
         }
 
     def _parse_pg_binary(self):

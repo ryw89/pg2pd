@@ -4,7 +4,8 @@ use pyo3::prelude::*;
 use std::str::from_utf8;
 
 use crate::common::{
-    bytes_to_f32, bytes_to_f64, bytes_to_i16, bytes_to_i32, bytes_to_i64, to_pyobject_wrap,
+    bytes_to_bool, bytes_to_f32, bytes_to_f64, bytes_to_i16, bytes_to_i32, bytes_to_i64,
+    to_pyobject_wrap,
 };
 
 #[pyclass]
@@ -22,6 +23,7 @@ enum PgData {
     Bigint(i64),
     Real(f32),
     Double(f64),
+    Boolean(bool),
 }
 
 impl ToPyObject for PgData {
@@ -45,6 +47,9 @@ impl ToPyObject for PgData {
             PgData::Double(_) => {
                 return to_pyobject_wrap(&self.as_double().unwrap());
             }
+            PgData::Boolean(_) => {
+                return to_pyobject_wrap(&self.as_boolean().unwrap());
+            }
         }
     }
 }
@@ -54,7 +59,9 @@ impl _ParseDataTypes {
     #[new]
     pub fn new(raw: Vec<Option<Vec<u8>>>, data_type: String) -> PyResult<Self> {
         // Check for allowed data types
-        let allowed = vec!["varchar", "integer", "smallint", "bigint", "real", "double"];
+        let allowed = vec![
+            "varchar", "integer", "smallint", "bigint", "real", "double", "boolean",
+        ];
         if !allowed.iter().any(|&i| i == data_type) {
             return Err(PyValueError::new_err(format!(
                 "Invalid data type: {}.",
@@ -98,6 +105,10 @@ impl _ParseDataTypes {
                     } else if &self.data_type == "double" {
                         let decoded = bytes_to_f64(e).unwrap();
                         let enummed = PgData::Double(decoded);
+                        out.push(Some(enummed));
+                    } else if &self.data_type == "boolean" {
+                        let decoded = bytes_to_bool(e).unwrap();
+                        let enummed = PgData::Boolean(decoded);
                         out.push(Some(enummed));
                     }
                 }
