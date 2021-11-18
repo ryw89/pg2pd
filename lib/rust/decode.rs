@@ -8,6 +8,14 @@ use crate::common::{
     to_pyobject_wrap,
 };
 
+macro_rules! parse_pg_bytes {
+    ( $x:expr, $pg_data_type:expr, $decode_fun:expr ) => {{
+        let decoded = $decode_fun($x).unwrap();
+        let enummed = $pg_data_type(decoded);
+        enummed
+    }};
+}
+
 #[pyclass]
 pub struct _ParseDataTypes {
     raw: Vec<Option<Vec<u8>>>,
@@ -87,29 +95,17 @@ impl _ParseDataTypes {
                         let enummed = PgData::Varchar(String::from(decoded));
                         out.push(Some(enummed));
                     } else if &self.data_type == "integer" {
-                        let decoded = bytes_to_i32(e).unwrap();
-                        let enummed = PgData::Integer(decoded);
-                        out.push(Some(enummed));
+                        out.push(Some(parse_pg_bytes![e, PgData::Integer, bytes_to_i32]));
                     } else if &self.data_type == "smallint" {
-                        let decoded = bytes_to_i16(e).unwrap();
-                        let enummed = PgData::Smallint(decoded);
-                        out.push(Some(enummed));
+                        out.push(Some(parse_pg_bytes![e, PgData::Smallint, bytes_to_i16]));
                     } else if &self.data_type == "bigint" {
-                        let decoded = bytes_to_i64(e).unwrap();
-                        let enummed = PgData::Bigint(decoded);
-                        out.push(Some(enummed));
+                        out.push(Some(parse_pg_bytes![e, PgData::Bigint, bytes_to_i64]));
                     } else if &self.data_type == "real" {
-                        let decoded = bytes_to_f32(e).unwrap();
-                        let enummed = PgData::Real(decoded);
-                        out.push(Some(enummed));
+                        out.push(Some(parse_pg_bytes![e, PgData::Real, bytes_to_f32]));
                     } else if &self.data_type == "double" {
-                        let decoded = bytes_to_f64(e).unwrap();
-                        let enummed = PgData::Double(decoded);
-                        out.push(Some(enummed));
+                        out.push(Some(parse_pg_bytes![e, PgData::Double, bytes_to_f64]));
                     } else if &self.data_type == "boolean" {
-                        let decoded = bytes_to_bool(e)?;
-                        let enummed = PgData::Boolean(decoded);
-                        out.push(Some(enummed));
+                        out.push(Some(parse_pg_bytes![e, PgData::Boolean, bytes_to_bool]));
                     }
                 }
             }
