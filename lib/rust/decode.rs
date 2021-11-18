@@ -83,7 +83,7 @@ impl _ParseDataTypes {
                 None => out.push(None),
                 Some(e) => {
                     if &self.data_type == "varchar" {
-                        let decoded = from_utf8(e).unwrap();
+                        let decoded = from_utf8(e)?;
                         let enummed = PgData::Varchar(String::from(decoded));
                         out.push(Some(enummed));
                     } else if &self.data_type == "integer" {
@@ -107,7 +107,7 @@ impl _ParseDataTypes {
                         let enummed = PgData::Double(decoded);
                         out.push(Some(enummed));
                     } else if &self.data_type == "boolean" {
-                        let decoded = bytes_to_bool(e).unwrap();
+                        let decoded = bytes_to_bool(e)?;
                         let enummed = PgData::Boolean(decoded);
                         out.push(Some(enummed));
                     }
