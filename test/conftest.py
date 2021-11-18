@@ -41,6 +41,8 @@ def postgres_container_creds():
                           VALUES (42, 'Some cool data')""")
         engine.execute("""INSERT INTO test1(id, text)
                           VALUES (25, 'Even more cool data')""")
+        engine.execute("""INSERT INTO test1(id, text)
+                          VALUES (60, NULL)""")
         engine.execute("""INSERT INTO test2(t, f)
                           VALUES (true, false)""")
 
