@@ -160,6 +160,7 @@ impl _ParsePgBinary {
 
         let mut field_locations = Vec::new();
         let mut fields_per_row = Vec::new();
+        let bytes = &self.bytes.clone().unwrap();
         loop {
             debug!("Current index is: {}", current_address);
             debug!(
@@ -172,8 +173,7 @@ impl _ParsePgBinary {
             if num_fields_left_for_current_tuple == 0 {
                 // In this case, we should be at a "number of fields"
                 // 16-bit integer.
-                let current_slice =
-                    &self.bytes.clone().unwrap()[current_address..current_address + 2];
+                let current_slice = &bytes[current_address..current_address + 2];
                 num_fields_left_for_current_tuple = get_tuple_fields_count(current_slice).unwrap();
 
                 // Must check if hit data footer -- Will contain -1
@@ -190,8 +190,7 @@ impl _ParsePgBinary {
             } else {
                 // We should be at a 32-bit "field length" piece of
                 // data, so let's get the data length first.
-                let current_slice =
-                    &self.bytes.clone().unwrap()[current_address..current_address + 4];
+                let current_slice = &bytes[current_address..current_address + 4];
                 let data_len = get_data_length(current_slice).unwrap();
 
                 // Let's move past the 32-bit "field length" integer to the data itself
