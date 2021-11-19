@@ -11,7 +11,7 @@ fn get_tuple_fields_count(bytes: &[u8]) -> Result<i16, &'static str> {
     if bytes.len() != 2 {
         return Err("Expected a 2-length vector of u8; cannot parse other lengths.");
     }
-    let count = bytes.clone().read_i16::<BigEndian>().unwrap();
+    let count = bytes.as_ref().read_i16::<BigEndian>().unwrap();
     Ok(count)
 }
 
@@ -36,7 +36,7 @@ fn get_data_length(bytes: &[u8]) -> Result<i32, &'static str> {
     if bytes.len() != 4 {
         return Err("Expected a 4-length vector of u8; cannot parse other lengths.");
     }
-    let count = bytes.clone().read_i32::<BigEndian>().unwrap();
+    let count = bytes.as_ref().read_i32::<BigEndian>().unwrap();
     Ok(count)
 }
 
@@ -110,7 +110,7 @@ impl _ParsePgBinary {
         }
 
         let magic_number = b"PGCOPY\n\xff\r\n\x00";
-        let first_eleven_bytes = &self.bytes.clone().unwrap()[..11];
+        let first_eleven_bytes = &self.bytes.as_ref().unwrap()[..11];
 
         for iter in magic_number.iter().zip(first_eleven_bytes.iter()) {
             let (a, b) = iter;
@@ -126,7 +126,7 @@ impl _ParsePgBinary {
     /// Check if data has OIDs. The fifteenth bit of bytes 12 to 15
     /// will contain the OID flag.
     pub fn check_oids(&mut self) -> PyResult<()> {
-        let bytes_twelve_to_fifteen = &self.bytes.clone().unwrap()[11..15];
+        let bytes_twelve_to_fifteen = &self.bytes.as_ref().unwrap()[11..15];
         let bits = BitVec::from_bytes(bytes_twelve_to_fifteen);
 
         // Bit 16 of bytes twelve to fifteen is the OID flag
@@ -139,8 +139,8 @@ impl _ParsePgBinary {
     /// the future.
     pub fn get_header_ext_len(&mut self) -> PyResult<()> {
         // Length is 32-bit integer at byte 16
-        let bytes = &self.bytes.clone().unwrap()[15..19];
-        self.header_ext_len = Some(bytes.clone().read_u32::<BigEndian>().unwrap());
+        let bytes = &self.bytes.as_ref().unwrap()[15..19];
+        self.header_ext_len = Some(bytes.as_ref().read_u32::<BigEndian>().unwrap());
         debug!(
             "Header extension length is {}",
             self.header_ext_len.unwrap()
@@ -160,7 +160,7 @@ impl _ParsePgBinary {
 
         let mut field_locations = Vec::new();
         let mut fields_per_row = Vec::new();
-        let bytes = &self.bytes.clone().unwrap();
+        let bytes = &self.bytes.as_ref().unwrap();
         loop {
             debug!("Current index is: {}", current_address);
             debug!(
