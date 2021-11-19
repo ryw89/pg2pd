@@ -40,7 +40,7 @@ fn get_data_length(bytes: &[u8]) -> Result<i32, &'static str> {
     Ok(count)
 }
 
-fn get_field_min_max(fields_per_row: &Vec<i16>) -> Result<(i16, i16), &'static str> {
+fn get_field_min_max(fields_per_row: &[i16]) -> Result<(i16, i16), &'static str> {
     Ok((
         *fields_per_row.iter().min().unwrap(),
         *fields_per_row.iter().max().unwrap(),
@@ -105,7 +105,7 @@ impl _ParsePgBinary {
     pub fn validate_header(&self) -> PyResult<()> {
         // First, let's confirm that self.bytes is a Some(). Exception
         // if not.
-        if let None = &self.bytes {
+        if self.bytes.is_none() {
             return Err(PyValueError::new_err("File has not been loaded yet."));
         }
 
@@ -152,7 +152,7 @@ impl _ParsePgBinary {
     pub fn find_data_locations(&mut self) -> PyResult<()> {
         // First address should be at "number of fields in current
         // tuple" 16-bit integer
-        let mut current_address = find_data_beginning(None, self.header_ext_len.clone().unwrap());
+        let mut current_address = find_data_beginning(None, self.header_ext_len.unwrap());
 
         // This initial value of zero will force a check on the first
         // loop iteration
