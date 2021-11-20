@@ -29,7 +29,7 @@ def test_make_df_1(pg_conn):
     assert pd.isna(df['text'].tolist()[2])
 
 
-def test_make_df_2(capsys, pg_conn):
+def test_make_df_2(pg_conn):
     """Test of main Postgres binary data to Pandas dataframe pipeline.
 
     This tests boolean data.
