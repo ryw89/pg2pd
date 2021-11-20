@@ -112,8 +112,7 @@ impl _ParsePgBinary {
         let magic_number = b"PGCOPY\n\xff\r\n\x00";
         let first_eleven_bytes = &self.bytes.as_ref().unwrap()[..11];
 
-        for iter in magic_number.iter().zip(first_eleven_bytes.iter()) {
-            let (a, b) = iter;
+        for (a, b) in magic_number.iter().zip(first_eleven_bytes.iter()) {
             if a != b {
                 return Err(PyValueError::new_err(
                     "File does not appear to be a valid Postgres binary copy file.",
