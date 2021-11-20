@@ -110,14 +110,14 @@ class Pg2Pd():
         if not hasattr(self, '_col_as_bytes'):
             self._parse_pg_binary()
 
-        self._cols = []
-        for col, dtype in zip(self._cols_as_bytes, self._unaliased_schema):
+        self._cols = {}
+        for colname, col, dtype in zip(self.colnames, self._cols_as_bytes,
+                                       self._unaliased_schema):
             parse = _ParseDataTypes(col, dtype)
             parse.parse_data()
-            self._cols.append(parse.decoded)
+            self._cols[colname] = parse.decoded
 
-        df = pd.DataFrame(self._cols).transpose()
-        df.columns = self.colnames
+        df = pd.DataFrame(self._cols, columns=self.colnames)
         self.df = df
         if return_df:
             return self.df
