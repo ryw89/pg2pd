@@ -46,11 +46,3 @@ pub fn bytes_to_bool(bytes: &[u8]) -> PyResult<bool> {
         Ok(false)
     }
 }
-
-/// Simpler wrapper around pyo3's to_object() method.
-pub fn to_pyobject_wrap<T>(x: T, py: Python) -> PyObject
-where
-    T: pyo3::conversion::ToPyObject,
-{
-    x.to_object(py)
-}

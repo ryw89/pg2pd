@@ -5,7 +5,6 @@ use std::str::from_utf8;
 
 use crate::common::{
     bytes_to_bool, bytes_to_f32, bytes_to_f64, bytes_to_i16, bytes_to_i32, bytes_to_i64,
-    to_pyobject_wrap,
 };
 
 macro_rules! parse_pg_bytes {
@@ -38,25 +37,25 @@ impl ToPyObject for PgData {
     fn to_object(&self, py: Python) -> PyObject {
         match &self {
             PgData::Varchar(_) => {
-                return to_pyobject_wrap(&self.as_varchar().unwrap(), py);
+                return self.as_varchar().unwrap().to_object(py);
             }
             PgData::Smallint(_) => {
-                return to_pyobject_wrap(&self.as_smallint().unwrap(), py);
+                return self.as_smallint().unwrap().to_object(py);
             }
             PgData::Integer(_) => {
-                return to_pyobject_wrap(&self.as_integer().unwrap(), py);
+                return self.as_integer().unwrap().to_object(py);
             }
             PgData::Bigint(_) => {
-                return to_pyobject_wrap(&self.as_bigint().unwrap(), py);
+                return self.as_bigint().unwrap().to_object(py);
             }
             PgData::Real(_) => {
-                return to_pyobject_wrap(&self.as_real().unwrap(), py);
+                return self.as_real().unwrap().to_object(py);
             }
             PgData::Double(_) => {
-                return to_pyobject_wrap(&self.as_double().unwrap(), py);
+                return self.as_double().unwrap().to_object(py);
             }
             PgData::Boolean(_) => {
-                return to_pyobject_wrap(&self.as_boolean().unwrap(), py);
+                return self.as_boolean().unwrap().to_object(py);
             }
         }
     }
