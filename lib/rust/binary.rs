@@ -236,7 +236,7 @@ impl _ParsePgBinary {
     }
 
     /// Fetch a vector of byte vectors for a specific column.
-    pub fn get_col_bytes(&self, col: usize) -> PyResult<Vec<Option<Vec<u8>>>> {
+    pub fn get_col_bytes(&self, col: usize) -> PyResult<Vec<Option<&[u8]>>> {
         // Check for number of fields
         let num_fields = self.get_num_fields().unwrap();
 
@@ -254,7 +254,7 @@ impl _ParsePgBinary {
         let ranges: Vec<usize> = (col..end).step_by(num_fields).collect();
 
         // Output vector
-        let mut out: Vec<Option<Vec<u8>>> = vec![None; ranges.len()];
+        let mut out: Vec<Option<&[u8]>> = vec![None; ranges.len()];
 
         out.par_iter_mut().enumerate().for_each(|(i, field_bytes)| {
             let field_data_idx = ranges[i];
@@ -266,14 +266,14 @@ impl _ParsePgBinary {
                 // The typical case -- Clone the byte vector slice and
                 // insert it. Otherwise, we'll leave the None value as it is
                 // to represent a Postgres NULL.
-                let dst = self.bytes.as_ref().unwrap()[start..start + byte_len as usize].to_vec();
+                let dst: &[u8] = &self.bytes.as_ref().unwrap()[start..start + byte_len as usize];
                 *field_bytes = Some(dst);
             }
         });
         Ok(out)
     }
 
-    pub fn get_col_bytes_all(&self) -> PyResult<Vec<Vec<Option<Vec<u8>>>>> {
+    pub fn get_col_bytes_all(&self) -> PyResult<Vec<Vec<Option<&[u8]>>>> {
         let num_fields = self.get_num_fields().unwrap();
         let empty_vec = vec![None];
         let mut out = vec![empty_vec; num_fields];
