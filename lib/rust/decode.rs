@@ -1,6 +1,8 @@
 use enum_as_inner::EnumAsInner;
 use pyo3::exceptions::*;
 use pyo3::prelude::*;
+use rayon::prelude::*;
+use std::hint::unreachable_unchecked;
 use std::str::from_utf8;
 
 use crate::common::{
@@ -64,42 +66,53 @@ impl ToPyObject for PgData {
 #[pymethods]
 impl _ParseDataTypes {
     #[new]
-    pub fn new(raw: Vec<Option<Vec<u8>>>, data_type: String) -> Self {
-        _ParseDataTypes {
+    pub fn new(raw: Vec<Option<Vec<u8>>>, data_type: String) -> PyResult<Self> {
+        // Check for allowed data types
+        let allowed = vec![
+            "varchar", "integer", "smallint", "bigint", "real", "double", "boolean",
+        ];
+        if !allowed.iter().any(|&i| i == data_type) {
+            return Err(PyValueError::new_err(format!(
+                "Invalid data type: {}.",
+                data_type
+            )));
+        }
+
+        Ok(_ParseDataTypes {
             raw,
             data_type,
             decoded: None,
-        }
+        })
     }
 
     pub fn parse_data(&mut self) -> PyResult<()> {
-        let mut out = Vec::new();
-        for e in &self.raw {
+        let mut out = vec![None; self.raw.len()];
+        out.par_iter_mut().enumerate().for_each(|(i, parsed)| {
+            let e = self.raw[i].as_ref();
             match e {
-                None => out.push(None),
+                None => {}
                 Some(e) => match self.data_type.as_ref() {
                     "varchar" => {
-                        let decoded = from_utf8(e)?;
+                        let decoded = from_utf8(e).unwrap();
                         let enummed = PgData::Varchar(String::from(decoded));
-                        out.push(Some(enummed));
+                        *parsed = Some(enummed)
                     }
-                    "integer" => out.push(Some(parse_pg_bytes![e, PgData::Integer, bytes_to_i32])),
+                    "integer" => *parsed = Some(parse_pg_bytes![e, PgData::Integer, bytes_to_i32]),
                     "smallint" => {
-                        out.push(Some(parse_pg_bytes![e, PgData::Smallint, bytes_to_i16]))
+                        *parsed = Some(parse_pg_bytes![e, PgData::Smallint, bytes_to_i16])
                     }
-                    "bigint" => out.push(Some(parse_pg_bytes![e, PgData::Bigint, bytes_to_i64])),
-                    "real" => out.push(Some(parse_pg_bytes![e, PgData::Real, bytes_to_f32])),
-                    "double" => out.push(Some(parse_pg_bytes![e, PgData::Double, bytes_to_f64])),
-                    "boolean" => out.push(Some(parse_pg_bytes![e, PgData::Boolean, bytes_to_bool])),
-                    _ => {
-                        return Err(PyValueError::new_err(format!(
-                            "Invalid data type: {}.",
-                            self.data_type
-                        )))
-                    }
+                    "bigint" => *parsed = Some(parse_pg_bytes![e, PgData::Bigint, bytes_to_i64]),
+                    "real" => *parsed = Some(parse_pg_bytes![e, PgData::Real, bytes_to_f32]),
+                    "double" => *parsed = Some(parse_pg_bytes![e, PgData::Double, bytes_to_f64]),
+                    "boolean" => *parsed = Some(parse_pg_bytes![e, PgData::Boolean, bytes_to_bool]),
+                    _ => unsafe {
+                        // This should not be reached due to the check
+                        // in the new function.
+                        unreachable_unchecked()
+                    },
                 },
             }
-        }
+        });
         self.decoded = Some(out);
         Ok(())
     }
