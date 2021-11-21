@@ -48,7 +48,7 @@ fn get_field_min_max(fields_per_row: &[i16]) -> Result<(i16, i16), &'static str>
 }
 
 /// Location and length in bytes of a Postgres binary data field.
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 struct FieldLocation {
     start: usize,
     byte_len: i32,
@@ -254,7 +254,7 @@ impl _ParsePgBinary {
         // of fields in each column
         let end = self.field_locations.as_ref().unwrap().len();
         for i in (col..end).step_by(num_fields) {
-            let field = &self.field_locations.clone().unwrap()[i];
+            let field = self.field_locations.as_ref().unwrap()[i];
             let start = field.start;
             let byte_len = field.byte_len;
 
