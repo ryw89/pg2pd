@@ -248,24 +248,26 @@ impl _ParsePgBinary {
             )));
         }
 
-        // Output vector
-        let mut out: Vec<Option<Vec<u8>>> = Vec::new();
-
-        // Iterate through field locations vector, stepping by number
-        // of fields in each column
+        // For later iteration through field locations vector,
+        // stepping by number of fields in each column
         let end = self.field_locations.as_ref().unwrap().len();
-        (col..end).step_by(num_fields).for_each(|i| {
-            let field = self.field_locations.as_ref().unwrap()[i];
-            let start = field.start;
-            let byte_len = field.byte_len;
+        let ranges: Vec<usize> = (col..end).step_by(num_fields).collect();
 
-            if byte_len == -1 {
-                // Push a None to represent Postgres null value
-                out.push(None);
-            } else {
-                // The typical case -- Clone the byte vector slice and push it
+        // Output vector
+        let mut out: Vec<Option<Vec<u8>>> = vec![None; ranges.len()];
+
+        out.par_iter_mut().enumerate().for_each(|(i, field_bytes)| {
+            let field_data_idx = ranges[i];
+            let field_data = self.field_locations.as_ref().unwrap()[field_data_idx];
+            let start = field_data.start;
+            let byte_len = field_data.byte_len;
+
+            if byte_len != -1 {
+                // The typical case -- Clone the byte vector slice and
+                // insert it. Otherwise, we'll leave the None value as it is
+                // to represent a Postgres NULL.
                 let dst = self.bytes.as_ref().unwrap()[start..start + byte_len as usize].to_vec();
-                out.push(Some(dst));
+                *field_bytes = Some(dst);
             }
         });
         Ok(out)
