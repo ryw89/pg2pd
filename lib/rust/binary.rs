@@ -299,7 +299,7 @@ impl _ParsePgBinary {
     #[getter]
     fn field_locations(&self) -> PyResult<Vec<(usize, i32)>> {
         let mut out = Vec::new();
-        for f in self.field_locations.clone().unwrap().iter_mut() {
+        for f in self.field_locations.as_ref().unwrap().iter() {
             let this_start = f.start;
             let this_byte_len = f.byte_len;
             out.push((this_start, this_byte_len));
