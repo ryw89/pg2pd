@@ -35,28 +35,28 @@ enum PgData {
 }
 
 impl ToPyObject for PgData {
-    fn to_object(&self, _py: Python) -> PyObject {
+    fn to_object(&self, py: Python) -> PyObject {
         match &self {
             PgData::Varchar(_) => {
-                return to_pyobject_wrap(&self.as_varchar().unwrap());
+                return to_pyobject_wrap(&self.as_varchar().unwrap(), py);
             }
             PgData::Smallint(_) => {
-                return to_pyobject_wrap(&self.as_smallint().unwrap());
+                return to_pyobject_wrap(&self.as_smallint().unwrap(), py);
             }
             PgData::Integer(_) => {
-                return to_pyobject_wrap(&self.as_integer().unwrap());
+                return to_pyobject_wrap(&self.as_integer().unwrap(), py);
             }
             PgData::Bigint(_) => {
-                return to_pyobject_wrap(&self.as_bigint().unwrap());
+                return to_pyobject_wrap(&self.as_bigint().unwrap(), py);
             }
             PgData::Real(_) => {
-                return to_pyobject_wrap(&self.as_real().unwrap());
+                return to_pyobject_wrap(&self.as_real().unwrap(), py);
             }
             PgData::Double(_) => {
-                return to_pyobject_wrap(&self.as_double().unwrap());
+                return to_pyobject_wrap(&self.as_double().unwrap(), py);
             }
             PgData::Boolean(_) => {
-                return to_pyobject_wrap(&self.as_boolean().unwrap());
+                return to_pyobject_wrap(&self.as_boolean().unwrap(), py);
             }
         }
     }
@@ -109,14 +109,14 @@ impl _ParseDataTypes {
     fn decoded(&self) -> PyResult<Vec<Option<PyObject>>> {
         let mut out = Vec::new();
 
-        for d in self.decoded.as_ref().unwrap() {
-            match d {
-                None => out.push(None),
-                Some(x) => {
-                    Python::with_gil(|py| out.push(Some(x.to_object(py))));
+        Python::with_gil(|py| {
+            for d in self.decoded.as_ref().unwrap() {
+                match d {
+                    None => out.push(None),
+                    Some(x) => out.push(Some(x.to_object(py))),
                 }
             }
-        }
+        });
         Ok(out)
     }
 }
