@@ -3,6 +3,7 @@ use byteorder::{BigEndian, ReadBytesExt};
 use log::debug;
 use pyo3::exceptions::*;
 use pyo3::prelude::*;
+use rayon::prelude::*;
 use std::fs::read;
 use std::io::ErrorKind;
 
@@ -267,6 +268,16 @@ impl _ParsePgBinary {
                 out.push(Some(dst));
             }
         }
+        Ok(out)
+    }
+
+    pub fn get_col_bytes_all(&self) -> PyResult<Vec<Vec<Option<Vec<u8>>>>> {
+        let num_fields = self.get_num_fields().unwrap();
+        let empty_vec = vec![None];
+        let mut out = vec![empty_vec; num_fields];
+        out.par_iter_mut().enumerate().for_each(|(i, col)| {
+            *col = self.get_col_bytes(i).unwrap();
+        });
         Ok(out)
     }
 

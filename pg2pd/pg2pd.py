@@ -21,7 +21,7 @@ def pg_binary_to_bytes(path: str,
                 f'Expected {expected_col_num} column(s), but found {pg.num_fields} from parsing.'
             )
 
-    return [pg.get_col_bytes(x) for x in range(pg.num_fields)]
+    return pg.get_col_bytes_all()
 
 
 class Pg2Pd():
