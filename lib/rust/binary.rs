@@ -254,7 +254,7 @@ impl _ParsePgBinary {
         // Iterate through field locations vector, stepping by number
         // of fields in each column
         let end = self.field_locations.as_ref().unwrap().len();
-        for i in (col..end).step_by(num_fields) {
+        (col..end).step_by(num_fields).for_each(|i| {
             let field = self.field_locations.as_ref().unwrap()[i];
             let start = field.start;
             let byte_len = field.byte_len;
@@ -267,7 +267,7 @@ impl _ParsePgBinary {
                 let dst = self.bytes.as_ref().unwrap()[start..start + byte_len as usize].to_vec();
                 out.push(Some(dst));
             }
-        }
+        });
         Ok(out)
     }
 
