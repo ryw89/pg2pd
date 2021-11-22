@@ -64,16 +64,16 @@ class Pg2Pd():
                     found[i] = True
                     continue
 
-            if not all(found):
-                bad_types = list(
-                    set([x for x, y in zip(self.schema, found) if not y]))
-                if len(bad_types) <= 3:
-                    msg_base = 'Invalid types found: '
-                else:
-                    msg_base = 'Invalid types found, including: '
+        if not all(found):
+            bad_types = list(
+                set([x for x, y in zip(self.schema, found) if not y]))
+            if len(bad_types) <= 3:
+                msg_base = 'Invalid types found: '
+            else:
+                msg_base = 'Invalid types found, including: '
 
-                msg = msg_base + ', '.join(bad_types[:3]) + '.'
-                raise ValueError(msg)
+            msg = msg_base + ', '.join(bad_types[:3]) + '.'
+            raise ValueError(msg)
 
         self._unaliased_schema = unaliased
 
